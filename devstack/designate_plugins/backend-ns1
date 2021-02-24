@@ -1,8 +1,7 @@
-# Configure the ns1 backend
+# Configure the NS1 backend
 
 # Requirements:
-# A NIOS Grid Master or Cloud Network Automation appliance (virtual or otherwise) is required
-# to use this DevStack plugin.
+# A working NS1 managed DNS / DDI environment is needed to use this DevStack plugin.
 
 # Enable with:
 # DESIGNATE_BACKEND_DRIVER=ns1

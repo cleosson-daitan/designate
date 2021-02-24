@@ -1,4 +1,6 @@
-# Copyright 2016 Hewlett Packard Enterprise Development Company, L.P.
+# Copyright 2021 NS1 Inc. https://www.ns1.com
+#
+# Author: Dragan Blagojevic <dblagojevic@daitan.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -27,7 +29,7 @@ CONF = cfg.CONF
 class NS1Backend(base.Backend):
     __plugin_name__ = 'ns1'
 
-    __backend_status__ = 'integrated'
+    __backend_status__ = 'untested'
 
     def __init__(self, target):
         LOG.error('NS1 init called')
@@ -42,7 +44,7 @@ class NS1Backend(base.Backend):
         }
 
     def _build_url(self, zone=''):
-        LOG.error('ns1 build url called')
+        LOG.debug('ns1 build url called. Zone: %s ',zone)
         r_url = urllib.parse.urlparse(self.api_endpoint)
         if zone[-1]==".":
             zone=zone[:-1]
@@ -50,7 +52,7 @@ class NS1Backend(base.Backend):
             r_url.scheme, r_url.netloc, '/' if zone else '', zone)
 
     def _check_zone_exists(self, zone):
-        LOG.error('ns1 check exist called')
+        LOG.debug('ns1 check zone exist. Zone: %s ',zone.name')
         zone = requests.get(
             self._build_url(zone=zone.name),
             headers=self.headers,
@@ -60,7 +62,7 @@ class NS1Backend(base.Backend):
 
     def create_zone(self, context, zone):
         """Create a DNS zone"""
-        LOG.error('ns1 create zone called. Zone: %s ',zone.name)
+        LOG.debug('ns1 create zone. Zone: %s ',zone.name)
 
         masters_host = ""
         master_port = 5354
@@ -68,6 +70,7 @@ class NS1Backend(base.Backend):
             master_host = master.host
             master_port = master.port
             break
+        #designate requires "." at the end of thje zone name, NS1 requires zone name without it 
         zonename=zone.name
         if zonename[-1]==".":
             zonename=zonename[:-1]
@@ -101,7 +104,7 @@ class NS1Backend(base.Backend):
         except requests.HTTPError as e:
             # check if the zone was actually created - even with errors ns1
             # will create the zone sometimes
-            LOG.error('ns1 after post - error: %s ',e)
+            LOG.debug('ns1 api http error: %s ',e)
             if self._check_zone_exists(zone):
                 LOG.info("%s was created with an error. Deleting zone", zone)
                 try:

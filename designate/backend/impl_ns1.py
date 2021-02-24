@@ -31,7 +31,7 @@ class NS1Backend(base.Backend):
 
     def __init__(self, target):
         LOG.error('NS1 init called')
-        super(DDIBackend, self).__init__(target)
+        super(NS1Backend, self).__init__(target)
 
         self.api_endpoint = "https://" + self.options.get('api_endpoint')
         self.api_token = self.options.get('api_token')

@@ -52,7 +52,7 @@ class NS1Backend(base.Backend):
             r_url.scheme, r_url.netloc, '/' if zone else '', zone)
 
     def _check_zone_exists(self, zone):
-        LOG.debug('ns1 check zone exist. Zone: %s ',zone.name')
+        LOG.debug('ns1 check zone exist. Zone: %s ',zone.name)
         zone = requests.get(
             self._build_url(zone=zone.name),
             headers=self.headers,

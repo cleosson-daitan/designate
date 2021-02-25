@@ -31,8 +31,7 @@ class NS1Backend(base.Backend):
 
     __backend_status__ = 'untested'
 
-    def __init__(self, target):
-        LOG.error('NS1 init called')
+    def __init__(self, target):      
         super(NS1Backend, self).__init__(target)
 
         self.api_endpoint = "https://" + self.options.get('api_endpoint')
@@ -43,16 +42,15 @@ class NS1Backend(base.Backend):
             "X-NSONE-Key": self.api_token
         }
 
-    def _build_url(self, zone=''):
-        LOG.debug('ns1 build url called. Zone: %s ',zone)
+    def _build_url(self, zone=''):        
         r_url = urllib.parse.urlparse(self.api_endpoint)
-        if zone[-1]==".":
-            zone=zone[:-1]
+        zone = zone.rstrip(',')
+        
         return "%s://%s/v1/zones%s%s" % (
             r_url.scheme, r_url.netloc, '/' if zone else '', zone)
 
     def _check_zone_exists(self, zone):
-        LOG.debug('ns1 check zone exist. Zone: %s ',zone.name)
+        
         zone = requests.get(
             self._build_url(zone=zone.name),
             headers=self.headers,
@@ -62,18 +60,17 @@ class NS1Backend(base.Backend):
 
     def create_zone(self, context, zone):
         """Create a DNS zone"""
-        LOG.debug('ns1 create zone. Zone: %s ',zone.name)
 
         masters_host = ""
         master_port = 5354
+        
+        #get only first master in case there is multiple, NS1 dns supports only 1 
         for master in self.masters:
             master_host = master.host
             master_port = master.port
             break
-        #designate requires "." at the end of thje zone name, NS1 requires zone name without it 
-        zonename=zone.name
-        if zonename[-1]==".":
-            zonename=zonename[:-1]
+        #designate requires "." at the end of the zone name, NS1 requires zone name without it 
+        zonename=zone.name.rstrip('.')
 
         data = {
             "zone": zonename,
@@ -104,7 +101,6 @@ class NS1Backend(base.Backend):
         except requests.HTTPError as e:
             # check if the zone was actually created - even with errors ns1
             # will create the zone sometimes
-            LOG.debug('ns1 api http error: %s ',e)
             if self._check_zone_exists(zone):
                 LOG.info("%s was created with an error. Deleting zone", zone)
                 try:
@@ -121,7 +117,7 @@ class NS1Backend(base.Backend):
         """Delete a DNS zone"""
 
         # First verify that the zone exists -- If it's not present
-        #  in the backend then we can just declare victory.
+        # in the backend then we can just declare victory.
         if self._check_zone_exists(zone):
             try:
                 requests.delete(

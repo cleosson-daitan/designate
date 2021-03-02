@@ -13,14 +13,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from unittest import mock
+from unittest import mock # noqa
 
 import requests_mock
 
 from designate import exceptions
 from designate import objects
 from designate.backend import impl_ns1
-from designate.mdns import rpcapi as mdns_rpcapi
 import designate.tests
 from designate.tests import fixtures
 
@@ -53,9 +52,10 @@ class NS1BackendTestCase(designate.tests.TestCase):
         }
         self.put_request_json = {
             'zone': u'example.com',
-            'secondary': {'enabled':True, 
-                'primary_ip':'192.0.2.1',
-                'primary_port':53
+            'secondary': {
+                'enabled': True,
+                'primary_ip': '192.0.2.1',
+                'primary_port': 53
             }
         }
 
@@ -63,14 +63,14 @@ class NS1BackendTestCase(designate.tests.TestCase):
             objects.PoolTarget.from_dict(self.target)
         )
 
-    @requests_mock.mock()    
+    @requests_mock.mock()
     def test_create_zone_success(self, req_mock):
         req_mock.put(self.api_address)
         req_mock.get(
             self.api_address,
             status_code=404
         )
-        
+
         self.backend.create_zone(self.context, self.zone)
 
         self.assertEqual(
@@ -85,7 +85,7 @@ class NS1BackendTestCase(designate.tests.TestCase):
     @requests_mock.mock()
     def test_create_zone_already_exists(self, req_mock):
         req_mock.put(self.api_address)
-        req_mock.get(self.api_address,status_code=200)
+        req_mock.get(self.api_address, status_code=200)
         req_mock.delete(self.api_address)
 
         self.backend.create_zone(self.context, self.zone)
@@ -98,7 +98,7 @@ class NS1BackendTestCase(designate.tests.TestCase):
         self.assertEqual(
             req_mock.last_request.headers.get('X-NSONE-Key'), 'test_key'
         )
-    
+
     @requests_mock.mock()
     def test_create_zone_fail(self, req_mock):
         req_mock.put(
@@ -123,22 +123,22 @@ class NS1BackendTestCase(designate.tests.TestCase):
 
     @requests_mock.mock()
     def test_delete_zone_success(self, req_mock):
-        req_mock.delete(self.api_address,status_code=200)
-        req_mock.get(self.api_address,status_code=200)
+        req_mock.delete(self.api_address, status_code=200)
+        req_mock.get(self.api_address, status_code=200)
 
         self.backend.delete_zone(self.context, self.zone)
 
         self.assertEqual(
             req_mock.last_request.headers.get('X-NSONE-Key'), 'test_key'
         )
-    
+
     @requests_mock.mock()
     def test_delete_zone_missing(self, req_mock):
-        req_mock.delete(self.api_address,status_code=200)
-        req_mock.get(self.api_address,status_code=404)
+        req_mock.delete(self.api_address, status_code=200)
+        req_mock.get(self.api_address, status_code=404)
 
         self.backend.delete_zone(self.context, self.zone)
-        
+
         self.assertIn(
             "Trying to delete zone "
             "<Zone id:'e2bed4dc-9d01-11e4-89d3-123b93f75cba' type:'None' "
@@ -155,9 +155,9 @@ class NS1BackendTestCase(designate.tests.TestCase):
 
     @requests_mock.mock()
     def test_delete_zone_fail(self, req_mock):
-        req_mock.delete(self.api_address,status_code=500)
-        req_mock.get(self.api_address,status_code=200)
-       
+        req_mock.delete(self.api_address, status_code=500)
+        req_mock.get(self.api_address, status_code=200)
+
         self.assertRaisesRegexp(
             exceptions.Backend,
             '500 Server Error: None for url: '
@@ -166,4 +166,4 @@ class NS1BackendTestCase(designate.tests.TestCase):
         )
         self.assertEqual(
             req_mock.last_request.headers.get('X-NSONE-Key'), 'test_key'
-        )        
+        )

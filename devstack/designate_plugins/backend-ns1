@@ -78,8 +78,9 @@ function configure_designate_backend {
         api_token: $DESIGNATE_NS1_API_TOKEN
         # NOTE: TSIG key has to be set manually if it's necessary
         #tsigkey_name: testkey
-	      #tsigkey_hash: hmac-sha512
-	      #tsigkey_value: 4EJz00m4ZWe005HjLiXRedJbSnCUx5Dt+4wVYsBweG5HKAV6cqSVJ/oem/6mLgDNFAlLP3Jg0npbg1SkP7RMDg==
+        #tsigkey_hash: hmac-sha512
+        #tsigkey_value: 4EJz00m4ZWe005HjLiXRedJbSnCUx5Dt+4wVYsBweG5HKAV6cqSVJ/oem/6mLgDNFAlLP3Jg0npbg1SkP7RMDg==
+        
 EOF
 }
 

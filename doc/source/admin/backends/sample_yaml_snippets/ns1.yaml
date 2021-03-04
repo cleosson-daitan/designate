@@ -21,5 +21,5 @@
         # If a tsigkey is needed, uncomment the line below and insert the key name, algorithm and value        
         # NOTE: TSIG key has to be set manually
         #tsigkey_name: testkey
-	      #tsigkey_hash: hmac-sha512
-	      #tsigkey_value: 4EJz00m4ZWe005HjLiXRedJbSnCUx5Dt+4wVYsBweG5HKAV6cqSVJ/oem/6mLgDNFAlLP3Jg0npbg1SkP7RMDg==
+        #tsigkey_hash: hmac-sha512
+        #tsigkey_value: 4EJz00m4ZWe005HjLiXRedJbSnCUx5Dt+4wVYsBweG5HKAV6cqSVJ/oem/6mLgDNFAlLP3Jg0npbg1SkP7RMDg==

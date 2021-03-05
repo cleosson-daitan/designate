@@ -45,7 +45,8 @@ In some cases a deployer may need to use tsig keys to sign AXFR (zone transfer)
 requests. As NS1 does not support a per host key setup, this needs to be set
 on a per zone basis, on creation.
 
-To do this, generate a tsigkey using any of available utilities (e.g. tsig-keygen):
+To do this, generate a tsigkey using any of available utilities 
+(e.g. tsig-keygen):
 
 .. code-block:: bash
 
@@ -62,4 +63,4 @@ Then insert it into Designate. Make sure the pool id is correct
 
     openstack tsigkey create --name testkey --algorithm hmac-sha512 --secret 4EJz00m4ZWe005HjLiXRedJbSnCUx5Dt+4wVYsBweG5HKAV6cqSVJ/oem/6mLgDNFAlLP3Jg0npbg1SkP7RMDg== --scope POOL --resource-id 794ccc2c-d751-44fe-b57f-8894c9f5c842
 
-Then add it to the ``pools.yaml`` file as shown in the example. 
+Then add it to the ``pools.yaml`` file as shown in the example.

@@ -37,7 +37,7 @@ class NS1Backend(base.Backend):
         self.tsigkey_name = self.options.get('tsigkey_name', None)
         self.tsigkey_hash = self.options.get('tsigkey_hash', None)
         self.tsigkey_value = self.options.get('tsigkey_value', None)
-        
+
         self.headers = {
             "X-NSONE-Key": self.api_token
         }
@@ -45,35 +45,42 @@ class NS1Backend(base.Backend):
     def _build_url(self, zone):
         return "%s/v1/zones/%s" % (self.api_endpoint, zone.name.rstrip('.'))
 
+    def _get_master(self):
+        try:
+            return self.masters[0]
+        except IndexError as e:
+            LOG.error('No masters host set in pools.yaml')
+            raise exceptions.Backend(e)
+
     def _check_zone_exists(self, zone):
 
         try:
-            getzone = requests.get(
+            requests.get(
                 self._build_url(zone),
                 headers=self.headers
-            )
-            
-        except requests.HTTPError as e:            
-            LOG.error('HTTP error while checking if zone exists. Zone %s', zone)
-            raise exceptions.Backend(e)
-        
+            ).raise_for_status()
+        except requests.HTTPError as e:
+            if e.response.status_code == 404:
+                return False
+            else:
+                LOG.error('HTTP error in check zone exists. Zone %s', zone)
+                raise exceptions.Backend(e)
         except requests.ConnectionError as e:
-            LOG.error('Connection error while checking if zone exists. Zone %s', zone)
+            LOG.error('Connection error in check zone exists. Zone %s', zone)
             raise exceptions.Backend(e)
-        
-        return getzone.status_code == 200
+
+        return True
 
     def create_zone(self, context, zone):
-        """Create a DNS zone"""
 
-        # get only first master in case of multiple. NS1 dns supports only 1        
+        master = self._get_master()
         # designate requires "." at end of zone name, NS1 requires omitting
         data = {
             "zone": zone.name.rstrip('.'),
             "secondary": {
                 "enabled": True,
-                "primary_ip": self.masters[0].host,
-                "primary_port": self.masters[0].port
+                "primary_ip": master.host,
+                "primary_port": master.port
             }
         }
         if self.tsigkey_name:
@@ -95,14 +102,17 @@ class NS1Backend(base.Backend):
             except requests.HTTPError as e:
                 # check if the zone was actually created
                 if self._check_zone_exists(zone):
-                    LOG.info("%s was created with an error. Deleting zone", zone)
+                    LOG.info("%s was created with an error. Deleting zone",
+                        zone.name)
                     try:
                         self.delete_zone(context, zone)
                     except exceptions.Backend:
-                        LOG.error('Could not delete errored zone %s', zone)
+                        LOG.error('Could not delete errored zone %s',
+                            zone.name)
                 raise exceptions.Backend(e)
         else:
-            LOG.info("Can't create zone %s because it already exists", zone)
+            LOG.info("Can't create zone %s because it already exists",
+                zone.name)
 
         self.mdns_api.notify_zone_changed(
             context, zone, self.host, self.port, self.timeout,

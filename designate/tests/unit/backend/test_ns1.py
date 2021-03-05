@@ -13,10 +13,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from unittest import mock # noqa
-
 import requests_mock
-
 from designate import exceptions
 from designate import objects
 from designate.backend import impl_ns1
@@ -85,7 +82,7 @@ class NS1BackendTestCase(designate.tests.TestCase):
                     'name': 'test_key',
                     'key': 'aaaabbbbccc'
                 }
-            }            
+            }
         }
 
         self.backend = impl_ns1.NS1Backend(
@@ -94,6 +91,7 @@ class NS1BackendTestCase(designate.tests.TestCase):
         self.backend_tsig = impl_ns1.NS1Backend(
             objects.PoolTarget.from_dict(self.target_tsig)
         )
+
     @requests_mock.mock()
     def test_create_zone_success(self, req_mock):
         req_mock.put(self.api_address)
@@ -112,6 +110,7 @@ class NS1BackendTestCase(designate.tests.TestCase):
         self.assertEqual(
             req_mock.last_request.headers.get('X-NSONE-Key'), 'test_key'
         )
+
     @requests_mock.mock()
     def test_create_zone_with_tsig_success(self, req_mock):
         req_mock.put(self.api_address)
@@ -130,18 +129,17 @@ class NS1BackendTestCase(designate.tests.TestCase):
         self.assertEqual(
             req_mock.last_request.headers.get('X-NSONE-Key'), 'test_key'
         )
+
     @requests_mock.mock()
     def test_create_zone_already_exists(self, req_mock):
-        
+
         req_mock.get(self.api_address, status_code=200)
         req_mock.put(self.api_address)
-                
+
         self.backend.create_zone(self.context, self.zone)
 
         self.assertIn(
-            "Can't create zone <Zone id:'e2bed4dc-9d01-11e4-89d3-123b93f75cba' "
-            "type:'None' name:'example.com.' pool_id:'None' serial:'None' action:'None' status:'None'> "
-            "because it already exists",
+            "Can't create zone example.com. because it already exists",
             self.stdlog.logger.output
         )
 

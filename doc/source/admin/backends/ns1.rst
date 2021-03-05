@@ -45,7 +45,7 @@ In some cases a deployer may need to use tsig keys to sign AXFR (zone transfer)
 requests. As NS1 does not support a per host key setup, this needs to be set
 on a per zone basis, on creation.
 
-To do this, generate a tsigkey using any of available utilities 
+To do this, generate a tsigkey using any of available utilities
 (e.g. tsig-keygen):
 
 .. code-block:: bash

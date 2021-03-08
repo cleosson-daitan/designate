@@ -16,10 +16,10 @@
 .. _backend-ns1:
 
 NS1 Backend
-=============
+===========
 
 NS1 Configuration
--------------------
+-----------------
 
 
 1. Configure the NS1 Backend using this sample target snippet
